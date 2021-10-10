@@ -1,0 +1,166 @@
+Basically the js code is executed in 2 phases
+during the creation phase 
+there is global execution context (GEC) which has 2 phases
+
+during the initialization inside GEC  below happens in the memory area of GEC
+1 it creates memory for all the variables & stores undefined in it 
+2 it creates memory for all the function & copies the function body in it 
+------------ ends the first phase-------------------
+in the second phase during code execution which happens in code area of GEC
+line by line code is executed 
+and value is computed in code area & stored in memory area of GEC
+
+when function is created as arrow function it behaves like a variable 
+
+
+--------------------------Scope & scope chain
+if a function is having some console.log(a)    if a is not declared in the function it will 
+1st it cheks if a is defined in the functions local scopr
+if not in local scope it goes to the scope where the function is called if there a is declared
+console.log(a)  will use the a value of parent method
+
+but vice versa not possible 
+
+--------------- lexical environment------------
+basically every method or function has a execution context 
+in the execution context there is a lexical memory, lexical memory contain local variable in that function + lexical memory of parent
+and so on 
+in case of scope chain mentioned above if variable is not present in function it checks parent using the lexical environment
+lexical environment of root function or global exec context is null 
+
+
+------------- hoisting let & const--------------
+
+let & const are hoisted 
+basically if we try to console log any let of const value before its initialized just like we did in var  values
+we get an error
+that is because for let and const memory is created & undefined is stored but still we get error because
+its is allocated memory in a different space   we can find by debugging
+usually anything with var is allocated inside the global space
+but let & const are allocated in a different memory that is why we cant access it 
+we can only access once we initialize the value 
+
+for let from time its hoisted   till its initialization is called temporal dead zone where the value is unusable if we use we get 
+error
+
+
+----------------------block & block scope------------------------
+
+suppose if there is a block it can be an if block or for loop block
+if we declare a VAR inside a block it will be visible inside the current execution context & not just inside block
+if inside  function abc()  if there is an ifelse block having var d  that d is full accessible inside function
+
+in case of let & const if its declared inside a block its only present in block we cant access outside the block 
+
+
+
+
+------------------closure-----------------
+function along with its lexical environment or( its surrounding state)
+
+so basically 
+fun a()  it has fun b()   now fun a() return the function b 
+
+typically when the function returns it is removed from call stack
+but since the return is function b() which is inside the function() we must think the reference of inner function is gone
+
+but its not
+the inner function will retain all the code and lexical scope of its parent which is removed from call stack with the help
+of closure
+closure -> function along with its lexical environment or( its surrounding state)
+no matter any number of nesting inside function 
+the closure will have for its parent & its parent's parent 
+also whatever value is inside closure its not direct value its the reference to variables
+so just be aware
+
+
+
+-----------------timeout closure--------------------
+
+the function inside the timeout is a closure
+we might think normal js code execution anything after the timeout prints after the specified timeout, but not the case
+js code will go top down and perform all the operation
+but the timeout function think of it as a closure it will be called only when the time elapse
+but timeout will need the values which is enclosed in the parent function that is gotten through closure
+-- there is a corner case in the code----
+
+
+
+-------------callback & js async-------------------------
+basically js is single threaded synchronous language
+but there is a way it becomes async using callback function
+so every eventListener has a callback fn. which will be executed once the condition occurs
+at the event the callback fn. is magically placed asynchronouosly in th call stack
+
+
+
+--------------------Event loop------------------------
+
+So most of the stuffs including console,DOM,timeout,location,bluetooth,fetch 
+all these are not feature of js but the feature of browser mostly called WEB API
+usually if there is any callback functions 
+like timeout, eventhandlers all these callback function are not stored in execution context but in the browser
+only when the condition applies the callback in put in the callstack & execution occurs
+
+So when we register any callback   its reserved in the browser
+Whenever the condition occers(eg timeout is completed) the callback functions are placed in the callback queue
+Now  EVENT loop will check the call stack of JS if the callstack is empty and if there are any callback in the queue
+then it will put the callback function in the call stack & its execution happens
+
+Call stack ----------- Event loop(it checks of call stack is empty then fetch the next callback function & put it in callstack where
+ the callback is executed if the callstack isnt empty the event loop waits)-------------------- Callback queue(it contains
+ all the callback functions whose conditions are met waiting to be execute)
+
+ ---MicroTask Queue----
+ Just like callback there are somemore special things like promises(callback function inside promises) & mutation observer(it checks if there is some changes
+ in DOM tree or not)    these things are stored in a Microtask queue  just like callbackqueue
+
+ but Microtaskqueue > Callbackqueue  (priority) 
+ so always microtask execute first only after that callbacks queue are executed
+
+ Just remember  all these microtask & callback queue waits till all the synchronous execution of our JS is completed
+
+ eg if our code is 1 million line and its exection takes 5 second, also we have timeout of 1 second stored
+ the timeout is called only after our 1 million normal code & after 5 second of normal execution even though timeout was 1 second
+
+ ----Starvation-----
+ if we have microtask call which call another microtask call and so on many microtask call are in the microtask queue
+
+ then our normal callback in callback queue is never given chance to execute this is called starvation
+
+
+
+ -----------------call , appy & bind-----------
+
+ lets say an object person   inside object there is method  getname()
+ also lets say we have another object which also needs getName() function instead of declaring method in that object
+ we can borrow method from other object using    getName().call(<instance>)  which takes the instance of object
+
+ for call()  the first arguement is always the object which will be invoked in the method using this keyword
+ other parameters in the call() is the formal parameters in actual method
+
+ call() & apply() are both same 1st parameter is the instance obj  its just that second parameter in the apply() is 
+ an array or formal parameters for actual method, in call we give all the arguement but in apply() its array of args
+
+ Bind()  it is similar to call we can bind any method with set of values and bind will return a function
+ which can be later called
+ basically call() will take args & execute the method there
+ bind() will take the arg & return a method which can be called later when we want
+
+
+ --------function currying----
+ basically if we have a method multiply()  we can make more methods(specialized) eg multiplyby2,3, etc out of it by using bind &
+ closures
+
+
+
+ -------------------Event bubbling & trickling--------------
+ basically if there are nested nested div or nested elements 
+ and each nesting of elements are having some eventlistener 
+
+ so in bubbling --> if listner of bottom most is executed then it bubbles up and all its parent & parent's parent till the globasl
+ is executed
+
+ in trickling -> if any listener is executed then from top most it reaches till the executed one 
+ so the cycle in first;y trickling down phase and then bubbling up phase better to watch the video
+ https://www.youtube.com/watch?v=aVSf0b1jVKk&list=PLlasXeu85E9eLVlWFs-nz5PKXJU4f7Fks&index=6

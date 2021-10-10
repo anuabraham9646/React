@@ -1,0 +1,132 @@
+Fragment help us add extra elements which is inferred from child or otherwise without an extra div node
+usualy parent -> child means   div->div hence in child without creating new div we can accomodate multiple elt in 1 parent div
+usually in tables implemented
+
+usage--Fragments has syntax <React.Fragment key=id> </React.Fragment>      which can have key attribute optional
+short hand notation for the above is  <> </> in shorthand we cant use key attribute
+
+
+---------------------------------------------------------------------------------------------------------------------------------------
+Note on Component and PureComponent 
+for reg comp the lifecycle shouldComponentUpdate is always true and re rendering always happend
+but in PC shouldComponentUpdate is implemented and would check for shallow comparison if false only then
+rerender   shallow comparison in primitive is if 2 string are same value and same type
+for complex obj checks for reference
+a=[1,2,3]
+b=[1,2,3]
+c=a         a shallow comp b will be false    but a shallow com c is true
+ ------------hence special mention is that if we use PureComponent  and working on list object we should not simply push and pop
+instead we should create new list array obj with new change or else the reefence is same and rendering wont happen
+--------- ensure all children component are pureComponent
+
+usage---            extends PureComponent
+
+--------------------------------------------------------------------------------------------------------------------------------------
+
+Memo is same as Purecomponents 
+but its for functional component
+
+usage----               export default React.Memo(functionName)
+--------------------------------------------------------------------------------------------------------------------------------------
+----------Refer ParentRef.js----------
+Refs help us to directly interact with the dom node
+eg. if we have a form and once we go to screen we should directly be pointed to the input field
+
+it has 3 steps;
+1 create ref usually in constructor -----       this.inputRef = React.createRef();
+2 attach ref to the element using ref keyword---    <input type="text" ref={this.inputRef}></input>
+inputref will be having an object called as current which has info of actual dom node
+3 use the ref to focus or we can obtain value--- this.inputRef.current.focus(); this.inputRef.current.value
+
+
+Ref on class component
+just like above we gave ref to an element 
+likewise we can create ref for a class component and use the class components method from the parent component
+Basically the Parent comp will have a ref which points to child component eg RefA--->Child component
+now from parent we can access the child components html elements using this technique refB----> child compoenets element
+here its like an intermediary
+the child component will have a method to focus the child element
+using the component ref  the parent component can call the child components metod which will have the logic to focus
+hence it is involving an intermediary
+
+
+
+FwdRef
+so this is basically 1 level up of class ref here a parent comp can directly work upon the element in child
+4 steps
+
+1 in parent we create a ref                                     this.fwdRef = React.createRef();
+2 attach the ref to the child component                         <FwdRef ref={this.fwdRef} />
+3 in child component we use es6 lamda function and use          React.forwardRef("inside here functtional component")
+usually functional component have props but with forward ref the functional component inside the forwardref will have 2 attributes
+props , ref  this ref is basically the reference from parent  attach this ref to the element in child component 
+usage in FwdRef.js 
+4 directly call the ref in parent 
+--------------------------------------------------------------------------------------------------------------------------------------
+Portals is a way of migrating a component from one dom node to another 
+used in modals tooltips etc.
+Usage
+return ReactDOM.createPortal((
+        <div>
+            <h1>Hi Portal</h1>
+        </div>
+    ),document.getElementById('portal-root'))
+
+    here the create portal takes the jsx which has to be rendered and then the node where it should be placed
+--------------------------------------------------------------------------------------------------------------------------------------
+Error boundaries are any class which implement thegetDerivedStateFromError(error)   or componentDidCatch(error,info) or both
+so with this we can create a fallback ui for any errors
+usually we can wrap the boundary over all the jsx elements but in that case if any 1 fails or throw error it will give fallback for all
+instead we can wrap the boundary over each element so that outta 100 if 1 fail 99 will render fine 1 will have fallback
+--------------------------------------------------------------------------------------------------------------------------------------
+
+
+Higher order components
+its basically reusing the components state and functions across multiple components
+even though the HOC has a state and its method
+but each components which extends this HOC has its own copy of the HOC states and method
+eg if HOC has count state
+clickCounter & hoverCounter components are passed to the HOC
+both has different copies of values
+a change in count clickcouter wont affect hovercounter and vice versa
+
+-Suppose from parent we send a props to clickcouter the props wont directly go to the Componentbut it will be passed
+at the HOC which takes the component as parameter and we pass {...this.props} while return
+
+also there is provision to add more parameters in the HOC eg
+1st parameter will be the component and 2nd be increment which is used to increment
+--------------------------------------------------------------------------------------------------------------------------------------
+COntext     
+Suppose App component has multiple nesting
+app -> comp a-> comp b -> comp c -------> comp z
+now if app had a prop user name and had to be printed in comp z them we would have to send the prop in each
+nested components till comp z which is tiresome 
+hence the concept of context kinda like session we initialize and get it in comp z without passing prop everywhere
+
+Step 1-----> create a context in new file          const usercontext = React.createContext('optional default value')
+now each context will have provider and consumer provider gives value and consumer reads
+
+hence continue step 1-----   const UserProvider = usercontext.Provider        const UserConsumer = usercontext.Consumer
+export both consumer and provider
+
+Step 2---- just like error boundary  we wrap the Provider over the Topmost level component i.e inside app component
+but we have flexibility if its wrapped at x component all the component nested below can use the value but the component
+above wont have the value
+<UserProvider value="Anu">
+    <ComponentA/>
+</UserProvider>
+
+Step 3 use the value saved in context use consumer wrap around
+//inside the render method
+<UserConsumer >
+    {
+        username =>{
+            return <div>Hello {username} </div>
+        }
+    }
+</UserConsumer>
+basically between open and closing tag 
+we can define a method which takes the context value and the function should return jsx which will be rendered
+
+Note we can provide default value in step 1 if we dont pass any value in provider
+--------------------------------------------------------------------------------------------------------------------------------------

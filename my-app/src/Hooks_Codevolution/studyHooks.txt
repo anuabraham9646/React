@@ -1,0 +1,114 @@
+Hooks helps use use class components functionality in the functional components
+
+interesting finding with use state and Useeffect
+if we make api call with use effect and fetch some value and suppose we put that value in a state variable
+if we try to get it directly in the render method it will be undefined first
+because the fetch api takes some time to fetch till that fetching is done the state will be empty and initial load
+is fast so it will be undefined
+but when the api value is fetched and the state is fetched with value it will re render and display value
+eg ->>>>>   team{ id: "1" , matches: [id :"123"]}  suppose this is fetched from api
+if we do <h1>{team.id}</h1>  it will print empty cos id is undefines
+if we do <h1>{team.matches[0].id}  it will give error page cos matches is undefined and we using undefined[0]
+check the ipl dashboard
+---------------------------------------------------------------------------------------------------------------------------------------
+UseState
+
+useState(<initial value>)  it return array 1st val is the state object and 2nd is the function to update the state based on prev
+when changing state object use the version where there is prev state 
+this is basically means the method parameter will in turn be a function.
+
+for each state we should have diff usestate() 
+in case of arrays and object if we need to add anything we shoud use spread operator because the merging wont happen unlike
+class components
+
+
+---------------------------------------------------------------------------------------------------------------------------------------
+Useeffect is to provide sideeffect and to mimic     we can have multiple useEffects
+componentdidmount
+componentwillunmount
+componentdidupdate
+
+---note---
+when using useEffect to set stateremember the setState() method should use the form where the
+input is having prevState or else bugs might arise
+---note-----  suppose we have a event listener eg-UseEffectOnceCleanup
+even after this useEffect being executed once the value of X &  Y changes thatis because 
+    addEventListener is global scope so doesnt matter  if we use ffect the listener is here to stay
+    and we just need it once
+
+
+incase of didmount where we just want to exeute once--- we give empty dependency array []
+incase of willunmount we can return a method which will be called during cleanup
+
+- when the second parameter is left blank. useEffect is called after every render.
+  This is akin to a regular React Component where shouldComponentUpdate always returns true [unless manually modified].
+
+ - when the second parameter is an empty array. useEffect is called only once after render.
+   This is akin to returning false in shouldComponentUpdate.
+
+ - when the array dependency contains state | props. From what I can tell, it performs a shallow comparison which determines if useEffect is called.
+   This is akin to a React PureComponent where the default behavior for shouldComponentUpdate performs a shallow comparison before moving on.
+---------------------------------------------------------------------------------------------------------------------------------------
+Use context
+here step 1 same as normal we create context
+step 2 same as before we give the provider of context wit value
+
+step 3  we use the   const val=useContext(UserContext)   and directly get the value
+earlier we had cumbersome process to get the consumer value  now its simple
+
+
+---------------------------------------------------------------------------------------------------------------------------------------
+UseReducer used for state management
+
+useReducer(reducer,initialValue)
+
+const newState= reducer(currentState,action)
+
+useReducer returns [newState,dispatch]
+
+
+use reducer takes an initial value or initial state  and also a reducer which is a function
+reducer has state and action the action is basically a switch case
+where each switch statement gives some modification to the state
+
+finally the usereducer returns the stateval and dispatch
+dispatch can be given to the buttons or handlers
+dispatch is method which takes in action type
+this action type is implemented in the reducer switch case
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------
+UseReducer plus useContext can together be used for global state management
+---------------------------------------------------------------------------------------------------------------------------------------
+Usecallback
+
+so it is a part of optimization process refer the concerned components
+initially when we incremented the age all the components re rendered
+including title  for that we used React.memo  which was okay for Title component and the count component where the props didnt changes
+but for button component even after React.memo  if we change age 
+both the age and salary re rendered  
+------note---- the reason is in js the props which is a function react will think its always a new props even if 2 diffrent instance
+having the same call eg props{call(10)}------>props{call(10)}  even tho both same function and both same value
+but react thinks its different because the props are function thats it
+
+
+so useCallback is used which kinda caches the entire function call not the return value th entire props{call(10)} is cached and wont be 
+re rendered unless we pass the dependency list and the dependency changes
+
+
+
+
+--------- a strange observation-----
+when my click handler method  using the state= age &  setAge method where the form is (prevAge)=> prevAge+1
+in this case in dependency list we cant pass[age] because inside the handler age isnt called
+also prevstate is not in that scope so i gave empty dependency
+
+result ------------ button component was not re rendered but the handler worked
+---------------------------------------------------------------------------------------------------------------------------------------
+Usememo is used when we have a expensive method which we dont want to call when its not changing
+
+use callback is used to cache a function
+usememo is used to invoke a function and cache the function returned value
+
+---------------------------------------------------------------------------------------------------------------------------------------
